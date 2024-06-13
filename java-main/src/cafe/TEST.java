@@ -5,7 +5,8 @@
  */
 package cafe;
 
-
+import formdangnhap.Toancuc;
+import formdangnhap.dangnhap;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.print.PrinterException;
@@ -15,12 +16,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JTextField;
 
-
+//import java.io.DataInputStream;
+//import java.io.DataOutputStream;
+//import java.net.Socket;
+//import javax.swing.DefaultListModel;
+//import javax.swing.JList;
+ /*
+ * @author This PC
+ */
 public class TEST extends javax.swing.JFrame implements Runnable {
  // JFrame frame = new JFrame("Điều chỉnh màu nền của JFrame");
 //45689
@@ -50,9 +61,16 @@ public class TEST extends javax.swing.JFrame implements Runnable {
     int mon19 = 100;
     int mon20 = 100;
     private JList lsHistory = new JList();
-   
+    ServerSocket svSocket;
+    Socket socket;
+    DataOutputStream output;
+    DataInputStream input;
     DefaultListModel model;
-    
+    // private JList lsHistory = new JList();
+ //Socket socket;
+   // DataOutputStream output;
+    //DataInputStream input;
+   // DefaultListModel model;
     private double total=0.0;
     private int x=0;
     private double tax=0.0;
@@ -70,7 +88,7 @@ public class TEST extends javax.swing.JFrame implements Runnable {
        jTextField2tongphuu.setEditable(false);
        jTextArea1.setEditable(false);
          model=new DefaultListModel();
-      
+       jLabel21.setText(Toancuc.getTenkh());
      // jLabel21.setText("a");
         //  model=new DefaultListModel();
          // System.out.println("Giá trị từ olay: " + valueFromloginButton); // In giá trị ra console
@@ -82,7 +100,14 @@ public class TEST extends javax.swing.JFrame implements Runnable {
        setImage();
        setTime();
    }
-  
+   String bb="";
+   String cc="";
+  public void updateTextField() {
+        // Sử dụng giá trị từ Toancuc để cập nhật txtten
+        jLabel21.setText(Toancuc.getTenkh());
+        bb=Toancuc.getTuoi();
+         // cc=Toancuc.getTenkh2();
+    }
    public void setImage(){
       ImageIcon icon=new ImageIcon(getClass().getResource("/image/traxoai.png"));
       ImageIcon icon2=new ImageIcon(getClass().getResource("/image/cafe.png"));
@@ -2059,13 +2084,21 @@ public class TEST extends javax.swing.JFrame implements Runnable {
         jButton3.setBackground(new java.awt.Color(255, 255, 153));
         jButton3.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jButton3.setText("CLICK ĐỂ CHAT VỚI NHÂN VIÊN");
-       
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jScrollPane3.setViewportView(lichsu);
 
         txtMessage.setColumns(20);
         txtMessage.setRows(5);
-        
+        txtMessage.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtMessageKeyPressed(evt);
+            }
+        });
         jScrollPane4.setViewportView(txtMessage);
 
         jLabel21.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -2074,7 +2107,11 @@ public class TEST extends javax.swing.JFrame implements Runnable {
         txtPort.setText("8888");
 
         sendd.setText("Gửi");
-       
+        sendd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                senddActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -2201,7 +2238,18 @@ public class TEST extends javax.swing.JFrame implements Runnable {
     private void jTextField3thanhtoanActionPerformed(java.awt.event.ActionEvent evt) {                                                     
         // TODO add your handling code here:
     }                                                    
-
+private void send() {
+    try {
+        output = new DataOutputStream(socket.getOutputStream());
+        output.writeUTF(txtMessage.getText());
+        output.flush();
+        model.addElement("💕😍You :      " + txtMessage.getText());
+        lichsu.setModel(model);
+        txtMessage.setText(""); // Xóa nội dung trong txtMessage sau khi gửi
+    } catch (Exception e) {
+        // Xử lý ngoại lệ nếu cần
+    }
+}
 
     private void btnresetActionPerformed(java.awt.event.ActionEvent evt) {                                         
         // TODO add your handling code here:
@@ -2209,24 +2257,66 @@ public class TEST extends javax.swing.JFrame implements Runnable {
         reset();
     }                                        
 
-                                  
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        // TODO add your handling code here:
 
-                               
+     try {
+        model.addElement("");
+        lichsu.setModel(model);
+        socket = new Socket("localhost", Integer.parseInt(txtPort.getText()));
+        model.addElement("Mời bạn nhập tin nhắn");
+        lichsu.setModel(model);
+        Thread s = new Thread(TEST.this);
+        s.start();
+    } catch (Exception e) {
+        // Xử lý ngoại lệ
+    }
+    }                                        
+//private void startServer() {
+//    try {
+//        model.addElement("...");
+//        lichsu.setModel(model);
+//        svSocket = new ServerSocket(Integer.parseInt(txtPort.getText()));
+//        socket = svSocket.accept();
+//        model.addElement("connected");
+//        lichsu.setModel(model);
+//        Thread t = new Thread(TEST.this);
+//        t.start();
+//    } catch (Exception e) {
+//        // Xử lý ngoại lệ
+//    }
+//}
+    private void senddActionPerformed(java.awt.event.ActionEvent evt) {                                      
+       try {
+        output = new DataOutputStream(socket.getOutputStream());
+        String message = "👨‍ Bạn  : " + txtMessage.getText();
+        output.writeUTF(txtMessage.getText());
+        output.flush();
+        
+        model.addElement(message);
+        lichsu.setModel(model);
+        
+        txtMessage.setText(""); // Xóa nội dung trong ô nhập tin sau khi gửi
+    } catch (Exception e) {
+        // Xử lý ngoại lệ
+    }
+    }                                     
 
 
  
 
      
     public void royalCafe() {
-    
+    dangnhap dangnhap = new dangnhap();
+    String username = dangnhap.getUsernameField().getText();
       
-       
+        System.out.println("tuoi khach hang="+bb);
 
    
     int purchaseId = 15020 + (int) (Math.random() * 80800);
     jTextArea1.setText("\n************************HAHA QUÁN******************************\n"
             + "Time: " + txtTime.getText() + "    |    Date: " + txtDate.getText() + "\n"
-            + "Mã hóa đơn: " + purchaseId + "\n" +  "\n"
+            + "Mã hóa đơn: " + purchaseId + "\n" + "Khách hàng : " + Toancuc.getTenkh()+" -"+ bb+ " Tuổi " + "\n"
             + "******************************************************************\n"
             + "Item Name:\t\t\t" + "Price(vnđ)\n");
 }
@@ -2246,7 +2336,7 @@ public class TEST extends javax.swing.JFrame implements Runnable {
      if(qtyIsZero(qty)&&jCheckBox2.isSelected()){
        x++;
        if(x==1){
-       
+          String userInput = "Giá trị từ người dùng"; // Đây là giá trị từ trường nhập của người dùng
 royalCafe();
        }
        double price=qty*20000.0;
@@ -2929,7 +3019,12 @@ System.out.println("=" + mon5);
       }
     }                                          
 
-                                      
+    private void txtMessageKeyPressed(java.awt.event.KeyEvent evt) {                                      
+        // TODO add your handling code here:
+         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        send(); // Gọi phương thức gửi tin nhắn khi nhấn Enter
+    }
+    }                                     
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {                                  
         // TODO add your handling code here:
@@ -3063,7 +3158,8 @@ sanco20.setText("còn:100");
   
    
     
-
+private String valueFromusernameField;
+private javax.swing.JTextField usernameField ;
     // Variables declaration - do not modify                     
     private javax.swing.JButton btnhoadon;
     private javax.swing.JButton btnreset;
@@ -3278,10 +3374,23 @@ sanco20.setText("còn:100");
     private javax.swing.JLabel txtTime;
     // End of variables declaration                   
 
-    @Override
+ @Override
     public void run() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+         
 
+  try {
+        input = new DataInputStream(socket.getInputStream());
+        while (true) {
+            if (socket != null) {
+                String message = " 💕😍 Nhân Viên: " + input.readUTF();
+                model.addElement(message);
+                lichsu.setModel(model);
+            }
+            Thread.sleep(1000);
+        }
+    } catch (Exception e) {
+        // Xử lý ngoại lệ
+    }
+    }
 
 }
