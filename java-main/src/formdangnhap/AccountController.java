@@ -14,8 +14,8 @@ import formdangnhap.Account;
 
 public class AccountController {
   
-    private String secrectKey="ahahahaha";
-    String salt = "kakakaka";
+    static String secrectKey="ahahahaha";
+   static String salt = "kakakaka";
   public static Connection getJDBCConnection() {
     String url = "jdbc:mysql://localhost:3306/hahaha";
     String secrectKey = "ahahahaha";
@@ -75,6 +75,7 @@ ps.setString(2, password);
     
         System.out.println("tendangnhap:"+mahoaa.encrypt("root", "ahahahaha", "kakakaka"));
         System.out.println("matkhau:"+mahoaa.encrypt("123456", "ahahahaha", "kakakaka"));
+        System.out.println("tendn="+mahoaa.decrypt("QjRuRToUOttwxQKL+AVsPVzhmVROy7BQl+3A0F/SNEk=", secrectKey, salt));
         Connection conn=getJDBCConnection();
         if(conn!=null){
             System.out.println("thanh cong"); 
